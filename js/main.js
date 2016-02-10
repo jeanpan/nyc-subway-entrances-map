@@ -30,7 +30,6 @@
     };
 
     var subwayLineClick = function(feature, layer) {
-      // console.log(feature.properties.Line);
       layer.bindPopup(feature.properties.Line);
     };
 
@@ -53,12 +52,11 @@
             fillColor: getEntrancesColor(line),
             fillOpacity: 1
           });
-          
+
       return subwayEntranceMarker;
     };
 
     var subwayEntranceClick = function(feature, layer) {
-      // console.log(feature.properties);
       layer.bindPopup('<strong>Line : </strong><span>' + feature.properties.line + '</span><br>' +
                       '<strong>Entrances : </strong><span>' + feature.properties.name + '</span>');
     };
