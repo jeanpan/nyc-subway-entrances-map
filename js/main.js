@@ -10,27 +10,26 @@
     attribution: 'Map Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> Contributors, Map Tiles &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
   });
 
-  var lines = [],
-      stations = [];
-
   // add tiles to map.
   map.addLayer(CartoDBTiles);
 
   // Subway Line Data
   $.getJSON('data/MTA_subway_lines.geojson', function(data) {
 
-    // console.log(data);
-
     var subwayLineData = data;
 
-    var subwayLineStyle = {
-      'color': '#5995ED',
-      'weight': 2,
-      'opacity': 0.8
+    var subwayLineStyle = function(feature) {
+      var line = feature.properties.Line,
+          style = {
+            'color': getLineColor(line),
+            'weight': 2,
+            'opacity': 0.8
+          };
+
+      return style;
     };
 
     var subwayLineClick = function(feature, layer) {
-      lines.push(feature.properties.Line);
       // console.log(feature.properties.Line);
       layer.bindPopup(feature.properties.Line);
     };
@@ -40,34 +39,28 @@
       onEachFeature: subwayLineClick
     }).addTo(map);
 
-    console.log($.unique(lines));
-    console.log($.unique(lines).length);
-
   });
 
   // Subway Entrances Data
   $.getJSON('data/Subway_entrances.geojson', function(data) {
 
-    // console.log(data);
-
     var subwayEntrancesData = data;
 
     var subwayEntrancesPoint = function(feature, latlng) {
-      // console.log(feature);
-
-      var subwayEntranceMarker = L.circle(latlng, 6, {
-        stroke: false,
-        fillColor: '#FFAD05',
-        fillOpacity: 1
-      });
-
+      var line = feature.properties.line,
+          subwayEntranceMarker = L.circle(latlng, 5, {
+            stroke: false,
+            fillColor: getEntrancesColor(line),
+            fillOpacity: 1
+          });
+          
       return subwayEntranceMarker;
     };
 
     var subwayEntranceClick = function(feature, layer) {
-      stations.push(feature.properties.line);
-      //console.log(feature.properties);
-      layer.bindPopup(feature.properties.name);
+      // console.log(feature.properties);
+      layer.bindPopup('<strong>Line : </strong><span>' + feature.properties.line + '</span><br>' +
+                      '<strong>Entrances : </strong><span>' + feature.properties.name + '</span>');
     };
 
     subwayEntrancesGeoJson = L.geoJson(subwayEntrancesData, {
@@ -75,11 +68,9 @@
       onEachFeature: subwayEntranceClick
     }).addTo(map);
 
-    console.log($.unique(stations));
-    console.log($.unique(stations).length);
-
   });
 
+  // NYC Neighborhood Data
   $.getJSON('data/NYC_neighborhood_data.geojson', function(data) {
 
     var neighborhoodData = data;
@@ -150,6 +141,57 @@
     };
 
     L.control.layers(baseMaps, overlayMaps).addTo(map);
+  }
+
+  function getLineColor(line) {
+    // http://web.mta.info/developers/resources/line_colors.htm
+    var lineColor = {
+      '#B933AD': ['7'],
+      '#A7A9AC': ['L'],
+      '#996633': ['J', 'Z'],
+      '#00933C': ['4', '5', '6'],
+      '#6CBE45': ['G'],
+      '#EE352E': ['1', '2', '3'],
+      '#FF6319': ['B', 'D', 'F', 'M'],
+      '#808183': ['S'],
+      '#0039A6': ['A', 'C', 'E'],
+      '#FCCC0A': ['N', 'Q', 'R']
+    };
+
+    return matchColor(line, lineColor);
+  }
+
+  function getEntrancesColor(entrance) {
+    // http://web.mta.info/developers/resources/line_colors.htm
+    // Monochromatic Color
+    var lineColor = {
+      '#7d2275': ['7'],
+      '#808387': ['L'],
+      '#604020': ['J', 'Z'],
+      '#00471d': ['4', '5', '6'],
+      '#4c872f': ['G'],
+      '#c01610': ['1', '2', '3'],
+      '#cc4100': ['B', 'D', 'F', 'M'],
+      '#5a5b5c': ['S'],
+      '#001f5a': ['A', 'C', 'E'],
+      '#b79302': ['N', 'Q', 'R']
+    };
+
+    return matchColor(entrance, lineColor);
+
+  }
+
+  function matchColor(str, colorObj) {
+    var color = null,
+        arr = str.split('-');
+
+    $.each(colorObj, function(i, v) {
+      if (v.indexOf(arr[0]) >= 0) {
+        color = i;
+      }
+    });
+
+    return color;
   }
 
 })();
