@@ -78,36 +78,36 @@
       var value = feature.properties.PovertyPer,
           fillColor = null;
 
-        switch (true) {
-          case (value >= 0 && value <= 0.1):
-            fillColor = "#fee5d9";
-            break;
-          case (value > 0.1 && value <= 0.15):
-            fillColor = "#fcbba1";
-            break;
-          case (value > 0.15 && value <= 0.2):
-            fillColor = "#fc9272";
-            break;
-          case (value > 0.2 && value <= 0.3):
-            fillColor = "#fb6a4a";
-            break;
-          case (value > 0.3 && value <= 0.4):
-            fillColor = "#de2d26";
-            break;
-          case (value > 0.4):
-            fillColor = "#a50f15";
-            break;
-        }
+      switch (true) {
+        case (value >= 0 && value <= 0.1):
+          fillColor = "#fee5d9";
+          break;
+        case (value > 0.1 && value <= 0.15):
+          fillColor = "#fcbba1";
+          break;
+        case (value > 0.15 && value <= 0.2):
+          fillColor = "#fc9272";
+          break;
+        case (value > 0.2 && value <= 0.3):
+          fillColor = "#fb6a4a";
+          break;
+        case (value > 0.3 && value <= 0.4):
+          fillColor = "#de2d26";
+          break;
+        case (value > 0.4):
+          fillColor = "#a50f15";
+          break;
+      }
 
-        var style = {
-          weight: 1,
-          opacity: 0.1,
-          color: 'white',
-          fillOpacity: 0.75,
-          fillColor: fillColor
-        };
+      var style = {
+        weight: 1,
+        opacity: 0.1,
+        color: 'white',
+        fillOpacity: 0.75,
+        fillColor: fillColor
+      };
 
-        return style;
+      return style;
     };
 
     var povertyClick = function(feature, layer) {
