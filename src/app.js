@@ -13,6 +13,17 @@
   // add tiles to map.
   map.addLayer(CartoDBTiles);
 
+  var query = "SELECT * FROM nyc_transit";
+
+  var param = $.param({
+    q: query,
+    format: "GeoJSON"
+  });
+
+  var url = "https://jeanpan.cartodb.com/api/v2/sql?" + param;
+
+  console.log(url);
+
   // Subway Line Data
   $.getJSON('data/MTA_subway_lines.geojson', function(data) {
 
@@ -40,25 +51,42 @@
 
   });
 
+  /*
+  $.getJSON(url, function(data){
+    var subwayEntrancesData = data;
+    console.log(data);
+  });
+  */
+
   // Subway Entrances Data
-  $.getJSON('data/Subway_entrances.geojson', function(data) {
+
+  var promise = $.getJSON(url, function(data) {
 
     var subwayEntrancesData = data;
 
     var subwayEntrancesPoint = function(feature, latlng) {
       var line = feature.properties.line,
-          subwayEntranceMarker = L.circle(latlng, 5, {
+          size = (feature.properties.entrance_type === 'Elevator') ? 15 : 6,
+          subwayEntranceMarker = L.circle(latlng, size, {
             stroke: false,
-            fillColor: getEntrancesColor(line),
+            fillColor: (feature.properties.entrance_type === 'Elevator') ? "black" : getEntrancesColor(feature.properties.route1),
             fillOpacity: 1
           });
+
+      if (feature.properties.entrance_type === 'Elevator') {
+        console.log(feature.properties.entrance_name);
+        //subwayEntranceMarker.stroke = true;
+        //subwayEntranceMarker.color = "black";
+        subwayEntranceMarker.fillColor = "black";
+      }
 
       return subwayEntranceMarker;
     };
 
     var subwayEntranceClick = function(feature, layer) {
-      layer.bindPopup('<strong>Line : </strong><span>' + feature.properties.line + '</span><br>' +
-                      '<strong>Entrances : </strong><span>' + feature.properties.name + '</span>');
+      //console.log(feature.properties);
+      //layer.bindPopup('<strong>Line : </strong><span>' + feature.properties.line + '</span><br>' +
+      //                '<strong>Entrances : </strong><span>' + feature.properties.name + '</span>');
     };
 
     subwayEntrancesGeoJson = L.geoJson(subwayEntrancesData, {
@@ -68,7 +96,12 @@
 
   });
 
+  promise.then(function(){
+    console.log("done");
+  });
+
   // NYC Neighborhood Data
+
   $.getJSON('data/NYC_neighborhood_data.geojson', function(data) {
 
     var neighborhoodData = data;
@@ -133,7 +166,7 @@
     };
 
     var overlayMaps = {
-      'Poverty Map': neighborhoodGeoJson,
+      // 'Poverty Map': neighborhoodGeoJson,
       'Subway Line Map': subwayLineGeoJson,
       'Subway Entrances Map': subwayEntrancesGeoJson
     };
