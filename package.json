@@ -19,7 +19,8 @@
   "homepage": "https://github.com/jeanpan/NYC-SubwayLinesEntrances#readme",
   "dependencies": {
     "jquery": "^2.2.3",
-    "leaflet": "^0.7.7"
+    "leaflet": "^0.7.7",
+    "leaflet-geocoder-mapzen": "^1.5.2"
   },
   "devDependencies": {
     "babel-core": "^6.7.7",

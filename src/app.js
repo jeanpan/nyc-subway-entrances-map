@@ -1,10 +1,18 @@
 (function(){
   "use strict";
 
+  // TODO: add search plugin
+  // TODO: add spatial search
+  //
+
   var map = L.map('map').setView([40.71, -73.93], 11),
+      geocoder = L.control.geocoder('search-BCXXM8y').addTo(map),
       subwayLineGeoJson,
       subwayEntrancesGeoJson,
       neighborhoodGeoJson;
+
+  // https://github.com/Leaflet/Leaflet/issues/766
+  L.Icon.Default.imagePath = 'https://raw.githubusercontent.com/Leaflet/Leaflet/master/dist/images/';
 
   var CartoDBTiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     attribution: 'Map Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> Contributors, Map Tiles &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
@@ -24,6 +32,28 @@
 
   console.log(url);
 
+  geocoder.on('select', function (e) {
+
+    var coordinates = e.feature.geometry.coordinates;
+    // Zoom in according to the search result
+    map.setView([coordinates[1], coordinates[0]], 16);
+
+    var box = map.getBounds(),
+        northEast = box._northEast,
+        southWest = box._southWest;
+
+    console.log(northEast);
+    console.log(southWest);
+
+    // Bounding box query
+    // var query = "SELECT * FROM table_29 WHERE the_geom && ST_SetSRID(ST_MakeBox2D(ST_Point(" + northEast.lng + ", " + northEast.lat + "), ST_Point(" + southWest.lng + ", " + southWest.lat + ")), 4326)";
+
+    // Within query
+    // var latlng = coordinates[1] + "," + coordinates[0];
+    // var query = "SELECT * FROM table_29 WHERE ST_DWithin(the_geom_webmercator, ST_Transform(CDB_LatLng(" + latlng + "), 3857), 2000)";
+    // plotData2Map(query);
+  });
+  /*
   // Subway Line Data
   $.getJSON('data/MTA_subway_lines.geojson', function(data) {
 
@@ -50,6 +80,7 @@
     }).addTo(map);
 
   });
+  */
 
   /*
   $.getJSON(url, function(data){
@@ -64,14 +95,21 @@
 
     var subwayEntrancesData = data;
 
+    var escalator = L.icon({
+      iconUrl: '../image/Escalator-96.png',
+      iconSize: [25, 25], // size of the icon
+    });
+
     var subwayEntrancesPoint = function(feature, latlng) {
       var line = feature.properties.line,
           size = (feature.properties.entrance_type === 'Elevator') ? 15 : 6,
+          // subwayEntranceMarker = L.marker(latlng, {icon: escalator});
           subwayEntranceMarker = L.circle(latlng, size, {
             stroke: false,
-            fillColor: (feature.properties.entrance_type === 'Elevator') ? "black" : getEntrancesColor(feature.properties.route1),
+            fillColor: (feature.properties.entrance_type === 'Elevator') ? 'black' : 'red',
             fillOpacity: 1
           });
+
 
       if (feature.properties.entrance_type === 'Elevator') {
         console.log(feature.properties.entrance_name);
@@ -101,7 +139,7 @@
   });
 
   // NYC Neighborhood Data
-
+/*
   $.getJSON('data/NYC_neighborhood_data.geojson', function(data) {
 
     var neighborhoodData = data;
@@ -167,7 +205,7 @@
 
     var overlayMaps = {
       // 'Poverty Map': neighborhoodGeoJson,
-      'Subway Line Map': subwayLineGeoJson,
+      // 'Subway Line Map': subwayLineGeoJson,
       'Subway Entrances Map': subwayEntrancesGeoJson
     };
 
@@ -224,5 +262,6 @@
 
     return color;
   }
+  */
 
 })();

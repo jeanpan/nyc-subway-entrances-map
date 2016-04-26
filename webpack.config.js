@@ -8,7 +8,7 @@ module.exports = {
   watch: true,
   entry: {
     app: appPath,
-    vendor: ["jquery", "leaflet"],
+    vendor: ["jquery", "leaflet", "leaflet-geocoder-mapzen"],
   },
   output: {
     path: distPath,
