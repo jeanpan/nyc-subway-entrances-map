@@ -1,0 +1,30 @@
+{
+  "name": "leaflet-geocoder-mapzen",
+  "version": "1.5.1",
+  "homepage": "https://github.com/mapzen/leaflet-geocoder",
+  "authors": [
+    "Harish Krishna",
+    "Lou Huang <lou@mapzen.com>"
+  ],
+  "description": "Add Mapzen Search geocoding to your Leaflet map.",
+  "main": "dist/leaflet-geocoder-mapzen.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "leaflet",
+    "plugin",
+    "search",
+    "geocode",
+    "pelias",
+    "mapzen"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "spec"
+  ]
+}

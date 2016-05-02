@@ -6,3 +6,13 @@ body {
 html, body, #map {
   height: 100%;
 }
+
+.content {
+  width: 300px;
+  height: 400px;
+  background: #fff;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: none;
+}

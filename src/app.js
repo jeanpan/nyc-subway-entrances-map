@@ -11,9 +11,6 @@
       subwayEntrancesGeoJson,
       neighborhoodGeoJson;
 
-  // https://github.com/Leaflet/Leaflet/issues/766
-  L.Icon.Default.imagePath = 'https://raw.githubusercontent.com/Leaflet/Leaflet/master/dist/images/';
-
   var CartoDBTiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     attribution: 'Map Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> Contributors, Map Tiles &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
   });
@@ -36,7 +33,7 @@
 
     var coordinates = e.feature.geometry.coordinates;
     // Zoom in according to the search result
-    map.setView([coordinates[1], coordinates[0]], 16);
+    map.setView([coordinates[1], coordinates[0]], 17);
 
     var box = map.getBounds(),
         northEast = box._northEast,
@@ -46,13 +43,163 @@
     console.log(southWest);
 
     // Bounding box query
-    // var query = "SELECT * FROM table_29 WHERE the_geom && ST_SetSRID(ST_MakeBox2D(ST_Point(" + northEast.lng + ", " + northEast.lat + "), ST_Point(" + southWest.lng + ", " + southWest.lat + ")), 4326)";
+    var query = "SELECT * FROM nyc_transit WHERE the_geom && ST_SetSRID(ST_MakeBox2D(ST_Point(" + northEast.lng + ", " + northEast.lat + "), ST_Point(" + southWest.lng + ", " + southWest.lat + ")), 4326)";
+
+    console.log(query);
 
     // Within query
     // var latlng = coordinates[1] + "," + coordinates[0];
     // var query = "SELECT * FROM table_29 WHERE ST_DWithin(the_geom_webmercator, ST_Transform(CDB_LatLng(" + latlng + "), 3857), 2000)";
-    // plotData2Map(query);
+    plotData2Map(query);
   });
+
+  function plotData2Map(query) {
+
+    var param = $.param({
+      q: query,
+      format: "GeoJSON"
+    });
+
+    var url = "https://jeanpan.cartodb.com/api/v2/sql?" + param;
+
+
+    var promise = $.getJSON(url, function(data) {
+
+      var prev;
+
+      var subwayEntrancesData = data;
+
+      var subwayEntrancesPoint = function(feature, latlng) {
+        var line = feature.properties.line,
+            size = (feature.properties.entrance_type === 'Elevator') ? 15 : 6,
+
+            subwayEntranceMarker = L.circleMarker(latlng, {
+              stroke: true,
+              fillColor: 'blue',
+              color: 'white',
+              // fillColor: (feature.properties.entrance_type === 'Elevator') ? 'black' : 'red',
+              fillOpacity: 0.8,
+              radius: 8,
+            });
+
+        if (feature.properties.entrance_type === 'Elevator') {
+          console.log(feature.properties.entrance_name);
+          //subwayEntranceMarker.stroke = true;
+          //subwayEntranceMarker.color = "black";
+          subwayEntranceMarker.fillColor = "black";
+        }
+
+        return subwayEntranceMarker;
+      };
+
+      var highlight = function(e) {
+        var target = e.target;
+
+        target.setStyle({
+          color: 'white',
+          weight: 5,
+        });
+      };
+
+      var reset = function(e) {
+
+        var target = e.target;
+
+
+        target.setStyle({
+          color: 'white',
+          weight: 0,
+        });
+
+      };
+
+      var focus = function(e) {
+        console.log(prev);
+
+        var target = e.target;
+
+        if (prev) {
+          console.log('reset prev');
+          prev.setStyle({
+            fillColor: 'blue',
+          });
+        }
+
+        prev = target;
+
+        target.setStyle({
+          fillColor: 'red',
+        });
+
+
+        createContentDOM(e.target.feature);
+
+        // console.log(e);
+      };
+
+      var onEachFeature = function(feature, layer) {
+        layer.on({
+          mouseover: highlight,
+          mouseout: reset,
+          click: focus,
+        })
+      };
+
+      /*
+      var subwayEntranceClick = function(feature, layer) {
+        //console.log(feature.properties);
+        //layer.bindPopup('<strong>Line : </strong><span>' + feature.properties.line + '</span><br>' +
+        //                '<strong>Entrances : </strong><span>' + feature.properties.name + '</span>');
+      };
+      */
+
+      subwayEntrancesGeoJson = L.geoJson(subwayEntrancesData, {
+        pointToLayer: subwayEntrancesPoint,
+        onEachFeature: onEachFeature,
+      }).addTo(map);
+
+    });
+
+  }
+
+  function createContentDOM(feature) {
+    $('.content').animate({
+      //display: 'show',
+      width: 'show',
+    });
+    var data = feature.properties;
+    // console.log(data);
+
+    var entrance = {
+      station_name: data.station_name,
+      east_west_street: data.east_west_street,
+      north_south_street: data.north_south_street,
+      entry: data.entry,
+      ada: data.ada,
+      entrance_type: data.entrance_type,
+      vending: data.vending,
+      staffing: data.staffing,
+      route: [
+        data.route1,
+        data.route2,
+        data.route3,
+        data.route4,
+        data.route5,
+        data.route6,
+        data.route7,
+        data.route8,
+        data.route9,
+        data.route10,
+      ],
+    };
+    // clean data
+    $('.content').html('');
+
+    var template = $('#template').html();
+    var output = Mustache.render(template, entrance);
+
+    $('.content').append(output);
+  }
   /*
   // Subway Line Data
   $.getJSON('data/MTA_subway_lines.geojson', function(data) {
@@ -91,6 +238,7 @@
 
   // Subway Entrances Data
 
+  /*
   var promise = $.getJSON(url, function(data) {
 
     var subwayEntrancesData = data;
@@ -137,6 +285,7 @@
   promise.then(function(){
     console.log("done");
   });
+  */
 
   // NYC Neighborhood Data
 /*
