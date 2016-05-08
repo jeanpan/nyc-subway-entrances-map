@@ -10,6 +10,8 @@
   <link type="text/css" rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css"/>
   <link type="text/css" rel="stylesheet" href="bower_components/leaflet-geocoder-mapzen/dist/leaflet-geocoder-mapzen.css"/>
 
+  <link type="text/css" rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css"/>
+
   <!-- Including custom CSS -->
   <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
@@ -18,13 +20,53 @@
 
   <div id="map"></div>
 
-  <script id="template" type="x-tmpl-mustache">
-    <h1>{{station_name}}</h1>
-    <p>
-    </p>
-  </script>
-  <div class="content">
+  <div class="box">
+    <div class="header">
+      <div class="head">
+        <img src="icons/subway.png" alt="" height="20" width="20">
+        <h1>NYC Subway Entrances Map</h1>
+      </div>
+      <p class="instructions">Search nearby subway entrance by typing in an address, like "30 W 26th St".</p>
+      <div id="geocoder"></div>
+      <div class="action">
+        <a href="" id="entrance" title="Show all entrances"><i class="fa fa-subway" aria-hidden="true"></i></a>
+        <a href="" id="ada" title="Show entrances providing ADA"><i class="fa fa-wheelchair" aria-hidden="true"></i></a>
+        <a href="" id="vending" title="Show entrances having vending machine"><i class="fa fa-usd" aria-hidden="true"></i></a>
+        <a href="" id="staffing" title="Show entrances having full time staff"><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+      </div>
+    </div>
+    <div class="content">
+      <p class="description">
+        There are many subway entrances in NYC. However, these entrances are not shown in Google Map. Google Map only shows station location. <br>
+        This is a map showing all the subway entrances and providing nearby entrances search. Click on the point of entrance to get the information of entrance. <br>
+        NYC subway entrances data is from <a href="https://data.ny.gov/">data.ny.gov</a>.<br>
+        Any feedback is welcome. Please submit a feedback <a href="https://github.com/jeanpan/nyc-subway-entrances-map/issues">here</a>.
+      </p>
+    </div>
   </div>
+
+  <script id="template" type="x-tmpl-mustache">
+    <div class="information">
+      <p class="street">{{east_west_street}} & {{north_south_street}}</p>
+      <h3>station name</h3>
+      <p>{{station_name}}</p>
+      <h3>entrance type</h3>
+      <p>{{entrance_type}}</p>
+      <h3>line</h3>
+      <p>{{line}}</p>
+      <h3>entry</h3>
+      <p>{{entry}}</p>
+      <h3>ada</h3>
+      <p>{{ada}}</p>
+      <h3>vending</h3>
+      <p>{{vending}}</p>
+      <h3>staffing</h3>
+      <p>{{staffing}}</p>
+      {{#latlng}}
+        <a href="http://maps.google.com/maps?q={{latlng}}" target="_blank" class="direction-btn">GET DIRECTION</a>
+      {{/latlng}}
+    </div>
+  </script>
 
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
   <script type="text/javascript" src="bower_components/mustache.js/mustache.js"></script>

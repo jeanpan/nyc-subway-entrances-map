@@ -4,36 +4,101 @@
   // TODO: add search plugin
   // TODO: add spatial search
   //
-
-  var map = L.map('map').setView([40.71, -73.93], 11),
-      geocoder = L.control.geocoder('search-BCXXM8y').addTo(map),
+  var initialZoom = (window.innerWidth < 700) ? 11 : 12;
+  var map = L.map('map', {zoomControl: false, minZoom: initialZoom, }).setView([40.7114, -73.9716], initialZoom),
       subwayLineGeoJson,
       subwayEntrancesGeoJson,
       neighborhoodGeoJson;
 
+  // http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png
+
   var CartoDBTiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
     attribution: 'Map Data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> Contributors, Map Tiles &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
   });
+
+  var geocoderOptions = {
+    pointIcon: false,
+    polygonIcon: false,
+    expanded: true,
+    fullWidth: false,
+    panToPoint: false,
+    autocomplete: true,
+    bounds: L.latLngBounds([[40.9260, -74.2212], [40.4924, -73.6911]]),
+    attribution: '',
+    placeholder: 'Search by your address',
+  };
+
+  /*
+  var options = {
+    bounds: true,
+    position: 'topright',
+    expanded: true
+  }
+  */
+
+  var geocoder = L.control.geocoder('search-BCXXM8y', geocoderOptions).addTo(map);
+  document.getElementById('geocoder').appendChild(geocoder.getContainer());
+  geocoder.focus();
+
+
+
+  L.control.zoom({ position: 'topright' }).addTo(map);
+  // L.control.zoom({position: 'topright',});
 
   // add tiles to map.
   map.addLayer(CartoDBTiles);
 
   var query = "SELECT * FROM nyc_transit";
 
-  var param = $.param({
-    q: query,
-    format: "GeoJSON"
+  var filters = [];
+
+  $('.action > a').on('click', function(e) {
+    e.preventDefault();
+    var toggle = $(this).hasClass('toggle'),
+        id = $(this).attr('id'),
+        index = filters.indexOf(id);
+
+    if (toggle) {
+      $(this).removeClass('toggle');
+    } else {
+      $(this).addClass('toggle');
+    }
+
+    if (index >= 0) {
+      filters.splice(index, 1);
+    } else {
+      filters.push(id);
+    }
+
+    var query = getQuery(filters);
+    console.log(query);
+
+    if (query !== "") {
+      if (subwayEntrancesGeoJson) {
+        map.removeLayer(subwayEntrancesGeoJson);
+      }
+      plotData2Map(query);
+    } else {
+      if (subwayEntrancesGeoJson) {
+        map.removeLayer(subwayEntrancesGeoJson);
+      }
+    }
+
+
+
+    //plotData2Map(query);
+
   });
 
-  var url = "https://jeanpan.cartodb.com/api/v2/sql?" + param;
-
-  console.log(url);
+  // plotData2Map(query);
 
   geocoder.on('select', function (e) {
 
     var coordinates = e.feature.geometry.coordinates;
     // Zoom in according to the search result
-    map.setView([coordinates[1], coordinates[0]], 17);
+    map.setView([coordinates[1], coordinates[0]], 16);
+    var latlng = coordinates[1] + "," + coordinates[0];
+
 
     var box = map.getBounds(),
         northEast = box._northEast,
@@ -43,7 +108,9 @@
     console.log(southWest);
 
     // Bounding box query
-    var query = "SELECT * FROM nyc_transit WHERE the_geom && ST_SetSRID(ST_MakeBox2D(ST_Point(" + northEast.lng + ", " + northEast.lat + "), ST_Point(" + southWest.lng + ", " + southWest.lat + ")), 4326)";
+    var query = "SELECT * FROM nyc_transit WHERE ST_DWithin(the_geom_webmercator, ST_Transform(CDB_LatLng(" + latlng + "), 3857), 2000)";
+
+    //var query = "SELECT * FROM nyc_transit WHERE the_geom && ST_SetSRID(ST_MakeBox2D(ST_Point(" + northEast.lng + ", " + northEast.lat + "), ST_Point(" + southWest.lng + ", " + southWest.lat + ")), 4326)";
 
     console.log(query);
 
@@ -51,6 +118,11 @@
     // var latlng = coordinates[1] + "," + coordinates[0];
     // var query = "SELECT * FROM table_29 WHERE ST_DWithin(the_geom_webmercator, ST_Transform(CDB_LatLng(" + latlng + "), 3857), 2000)";
     plotData2Map(query);
+  });
+
+  geocoder.on('reset', function(e) {
+    map.removeLayer(subwayEntrancesGeoJson);
+    map.setView([40.7114, -73.9716], initialZoom);
   });
 
   function plotData2Map(query) {
@@ -62,7 +134,6 @@
 
     var url = "https://jeanpan.cartodb.com/api/v2/sql?" + param;
 
-
     var promise = $.getJSON(url, function(data) {
 
       var prev;
@@ -70,24 +141,18 @@
       var subwayEntrancesData = data;
 
       var subwayEntrancesPoint = function(feature, latlng) {
+        // console.log(feature.properties.route1 + " : " + feature.properties.route2);
         var line = feature.properties.line,
             size = (feature.properties.entrance_type === 'Elevator') ? 15 : 6,
 
             subwayEntranceMarker = L.circleMarker(latlng, {
               stroke: true,
-              fillColor: 'blue',
+              fillColor: getEntrancesColor(feature.properties.route1),
               color: 'white',
-              // fillColor: (feature.properties.entrance_type === 'Elevator') ? 'black' : 'red',
+              weight: 1,
               fillOpacity: 0.8,
-              radius: 8,
+              radius: 5,
             });
-
-        if (feature.properties.entrance_type === 'Elevator') {
-          console.log(feature.properties.entrance_name);
-          //subwayEntranceMarker.stroke = true;
-          //subwayEntranceMarker.color = "black";
-          subwayEntranceMarker.fillColor = "black";
-        }
 
         return subwayEntranceMarker;
       };
@@ -121,20 +186,21 @@
         if (prev) {
           console.log('reset prev');
           prev.setStyle({
-            fillColor: 'blue',
+            fillColor: getEntrancesColor(e.target.feature.properties.route1),
+            radius: 5,
           });
         }
 
         prev = target;
 
         target.setStyle({
-          fillColor: 'red',
+          fillColor: 'black',
+          radius: 10,
         });
 
 
         createContentDOM(e.target.feature);
 
-        // console.log(e);
       };
 
       var onEachFeature = function(feature, layer) {
@@ -144,14 +210,6 @@
           click: focus,
         })
       };
-
-      /*
-      var subwayEntranceClick = function(feature, layer) {
-        //console.log(feature.properties);
-        //layer.bindPopup('<strong>Line : </strong><span>' + feature.properties.line + '</span><br>' +
-        //                '<strong>Entrances : </strong><span>' + feature.properties.name + '</span>');
-      };
-      */
 
       subwayEntrancesGeoJson = L.geoJson(subwayEntrancesData, {
         pointToLayer: subwayEntrancesPoint,
@@ -167,8 +225,12 @@
       //display: 'show',
       width: 'show',
     });
-    var data = feature.properties;
-    // console.log(data);
+    var data = feature.properties,
+        latlng;
+
+    if (data.entrance_latitude && data.entrance_longitude) {
+      latlng = data.entrance_latitude + ',' + data.entrance_longitude;
+    }
 
     var entrance = {
       station_name: data.station_name,
@@ -179,6 +241,10 @@
       entrance_type: data.entrance_type,
       vending: data.vending,
       staffing: data.staffing,
+      line: data.line,
+      free_crossover: data.free_crossover,
+      exit_only: data.exit_only,
+      latlng: latlng,
       route: [
         data.route1,
         data.route2,
@@ -229,136 +295,48 @@
   });
   */
 
-  /*
-  $.getJSON(url, function(data){
-    var subwayEntrancesData = data;
-    console.log(data);
-  });
-  */
+  function getQuery(filters) {
+    console.log(filters);
+    console.log(filters.length);
+    var sql = "";
+    if (filters.length < 1) {
+      return sql;
+    } else {
+      sql = "SELECT * FROM nyc_transit";
+      for(var i = 0; i < filters.length; i++) {
+        console.log(i);
+        console.log(filters[i]);
 
-  // Subway Entrances Data
-
-  /*
-  var promise = $.getJSON(url, function(data) {
-
-    var subwayEntrancesData = data;
-
-    var escalator = L.icon({
-      iconUrl: '../image/Escalator-96.png',
-      iconSize: [25, 25], // size of the icon
-    });
-
-    var subwayEntrancesPoint = function(feature, latlng) {
-      var line = feature.properties.line,
-          size = (feature.properties.entrance_type === 'Elevator') ? 15 : 6,
-          // subwayEntranceMarker = L.marker(latlng, {icon: escalator});
-          subwayEntranceMarker = L.circle(latlng, size, {
-            stroke: false,
-            fillColor: (feature.properties.entrance_type === 'Elevator') ? 'black' : 'red',
-            fillOpacity: 1
-          });
-
-
-      if (feature.properties.entrance_type === 'Elevator') {
-        console.log(feature.properties.entrance_name);
-        //subwayEntranceMarker.stroke = true;
-        //subwayEntranceMarker.color = "black";
-        subwayEntranceMarker.fillColor = "black";
+        if (i === 0) {
+          if (filters[i] === 'entrance') {
+            sql = sql;
+          } else if (filters[i] === 'staffing') {
+            sql = sql + " WHERE staffing = 'FULL'";
+          } else {
+            sql = sql + " WHERE " + filters[i] + " = true";
+          }
+        } else {
+          if (filters[i - 1] === 'entrance') {
+            if (filters[i] === 'entrance') {
+              sql = sql;
+            } else if (filters[i] === 'staffing') {
+              sql = sql + " WHERE staffing = 'FULL'";
+            } else {
+              sql = sql + " WHERE " + filters[i] + " = true";
+            }
+          } else {
+            if (filters[i] === 'entrance') {
+              sql = sql;
+            } else if (filters[i] === 'staffing') {
+              sql = sql + " AND staffing = 'FULL'";
+            } else {
+              sql = sql + " AND " + filters[i] + " = true";
+            }
+          }
+        }
       }
-
-      return subwayEntranceMarker;
-    };
-
-    var subwayEntranceClick = function(feature, layer) {
-      //console.log(feature.properties);
-      //layer.bindPopup('<strong>Line : </strong><span>' + feature.properties.line + '</span><br>' +
-      //                '<strong>Entrances : </strong><span>' + feature.properties.name + '</span>');
-    };
-
-    subwayEntrancesGeoJson = L.geoJson(subwayEntrancesData, {
-      pointToLayer: subwayEntrancesPoint,
-      onEachFeature: subwayEntranceClick
-    }).addTo(map);
-
-  });
-
-  promise.then(function(){
-    console.log("done");
-  });
-  */
-
-  // NYC Neighborhood Data
-/*
-  $.getJSON('data/NYC_neighborhood_data.geojson', function(data) {
-
-    var neighborhoodData = data;
-
-    var povertyStyle = function(feature) {
-
-      var value = feature.properties.PovertyPer,
-          fillColor = null;
-
-      switch (true) {
-        case (value >= 0 && value <= 0.1):
-          fillColor = "#fee5d9";
-          break;
-        case (value > 0.1 && value <= 0.15):
-          fillColor = "#fcbba1";
-          break;
-        case (value > 0.15 && value <= 0.2):
-          fillColor = "#fc9272";
-          break;
-        case (value > 0.2 && value <= 0.3):
-          fillColor = "#fb6a4a";
-          break;
-        case (value > 0.3 && value <= 0.4):
-          fillColor = "#de2d26";
-          break;
-        case (value > 0.4):
-          fillColor = "#a50f15";
-          break;
-      }
-
-      var style = {
-        weight: 1,
-        opacity: 0.1,
-        color: 'white',
-        fillOpacity: 0.75,
-        fillColor: fillColor
-      };
-
-      return style;
-    };
-
-    var povertyClick = function(feature, layer) {
-      var percent = feature.properties.PovertyPer * 100;
-      percent = percent.toFixed(0);
-
-      layer.bindPopup("<strong>Neighborhood : </strong> " + feature.properties.NYC_NEIG + "<br /><strong>Percent in Poverty : </strong>" + percent + "%");
-    };
-
-    neighborhoodGeoJson = L.geoJson(neighborhoodData, {
-      style: povertyStyle,
-      onEachFeature: povertyClick
-    });
-    // .addTo(map);
-
-    createLayerControl();
-
-  });
-
-  function createLayerControl() {
-    var baseMaps = {
-      'CartoDB': CartoDBTiles
-    };
-
-    var overlayMaps = {
-      // 'Poverty Map': neighborhoodGeoJson,
-      // 'Subway Line Map': subwayLineGeoJson,
-      'Subway Entrances Map': subwayEntrancesGeoJson
-    };
-
-    L.control.layers(baseMaps, overlayMaps).addTo(map);
+    }
+    return sql;
   }
 
   function getLineColor(line) {
@@ -411,6 +389,5 @@
 
     return color;
   }
-  */
 
 })();
