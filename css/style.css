@@ -271,3 +271,26 @@ a.button {
   color: #fff;
   background: #8FD694;
 }
+
+.info {
+  padding: 10px;
+  font: 14px/16px Arial, Helvetica, sans-serif;
+  background: white;
+  background: #fff;
+  box-shadow: 0 0 0 3px hsla(0,0%,50%,.5);
+  color: #666;
+}
+.info p {
+  height: 20px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+.legend i {
+  width: 14px;
+  height: 14px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.9;
+  border-radius: 50%;
+}

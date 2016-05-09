@@ -28,6 +28,37 @@
     placeholder: 'Search by your address',
   };
 
+  var legend = L.control({position: 'bottomright'});
+
+  legend.onAdd = function (map) {
+
+      var div = L.DomUtil.create('div', 'info legend'),
+          grades = [0, 10, 20, 50, 100, 200, 500, 1000],
+          labels = [];
+
+      var lineColor = {
+        '#B933AD': ['7'],
+        '#A7A9AC': ['L'],
+        '#996633': ['J', 'Z'],
+        '#00933C': ['4', '5', '6'],
+        '#6CBE45': ['G'],
+        '#EE352E': ['1', '2', '3'],
+        '#FF6319': ['B', 'D', 'F', 'M'],
+        '#808183': ['S'],
+        '#0039A6': ['A', 'C', 'E'],
+        '#FCCC0A': ['N', 'Q', 'R']
+      };
+
+      $.each(lineColor, function(key, value) {
+        div.innerHTML +=
+          '<p><i style="background:' + key + '"></i> <span>' + value.join(', ') + '</span></p>';
+      });
+
+      return div;
+  };
+
+  legend.addTo(map);
+
   /*
   var options = {
     bounds: true,
