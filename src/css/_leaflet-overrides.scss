@@ -1,0 +1,63 @@
+// Inline the leaflet styles
+@import '../../node_modules/leaflet/dist/leaflet.css';
+
+// Inline the leaflet-geocoder styles
+@import '../../node_modules/leaflet-geocoder-mapzen/dist/leaflet-geocoder-mapzen.css';
+
+.leaflet-top.leaflet-right {
+  margin-top: 95px;
+  @media #{$desktop} {
+    margin-top: 0;
+  }
+}
+
+.leaflet-bottom.leaflet-right {
+  display: none;
+  @media #{$desktop} {
+    display: block;
+  }
+}
+
+.leaflet-pelias-expanded {
+  height: 35px;
+  width: 100%;
+}
+
+.leaflet-bar {
+  border-radius: 0;
+  box-shadow: 0 0;
+
+  a:first-child {
+    border-radius: 0;
+  }
+
+  a:last-child {
+    border-radius: 0;
+  }
+}
+
+.leaflet-pelias-results.leaflet-bar {
+  position: absolute;
+  top: 35px;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  color: #000;
+  background: #eee;
+  box-shadow: 0 0 0 3px hsla(0, 0%, 50%, .5);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0;
+}
+
+.leaflet-container {
+  .leaflet-popup-close-button {
+    color: #000;
+  }
+
+  .leaflet-control-attribution {
+    background-color: transparent;
+  }
+}

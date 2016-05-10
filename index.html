@@ -6,14 +6,17 @@
   <!-- For full screen Leaflet maps, add the following meta tag to set parameters in the viewport. -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <!-- Including Leaflet CSS -->
-  <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+  <!--<link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>-->
+  <!---
   <link type="text/css" rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css"/>
   <link type="text/css" rel="stylesheet" href="bower_components/leaflet-geocoder-mapzen/dist/leaflet-geocoder-mapzen.css"/>
 
   <link type="text/css" rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css"/>
+  --->
+  <link type="text/css" rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css"/>
 
   <!-- Including custom CSS -->
-  <link type="text/css" rel="stylesheet" href="css/style.css"/>
+  <link type="text/css" rel="stylesheet" href="site/css/style.css"/>
 </head>
 
 <body>
@@ -26,7 +29,7 @@
         <img src="icons/subway.png" alt="" height="20" width="20">
         <h1>NYC Subway Entrances Map</h1>
       </div>
-      <p class="instructions">Search nearby subway entrance by typing in an address, like "30 W 26th St".</p>
+      <p class="instruction">Search nearby subway entrance by typing in an address, like "31 W 28th St, NY".</p>
       <div id="geocoder"></div>
       <div class="action">
         <a href="" id="entrance" title="Show all entrances"><i class="fa fa-subway" aria-hidden="true"></i></a>
@@ -36,12 +39,12 @@
       </div>
     </div>
     <div class="content">
-      <p class="description">
-        There are many subway entrances in NYC. However, these entrances are not shown in Google Map. Google Map only shows station location. <br>
-        This is a map showing all the subway entrances and providing nearby entrances search. Click on the point of entrance to get the information of entrance. <br>
-        NYC subway entrances data is from <a href="https://data.ny.gov/">data.ny.gov</a>.<br>
-        Any feedback is welcome. Please submit a feedback <a href="https://github.com/jeanpan/nyc-subway-entrances-map/issues">here</a>.
-      </p>
+      <div class="description">
+        <p>There are many subway entrances in NYC. However, these entrances are not shown in Google Map. Google Map only shows station location.</p>
+        <p>This is a map showing all the subway entrances and providing nearby entrances search. Click on the point of entrance to get the information of entrance.</p>
+        <p>NYC subway entrances data is from <a href="https://data.ny.gov/">data.ny.gov</a>.</p>
+        <p>Any feedback is welcome. Please submit a feedback <a href="https://github.com/jeanpan/nyc-subway-entrances-map/issues">here.</p>
+      </div>
     </div>
   </div>
 
@@ -63,7 +66,7 @@
       <h3>staffing</h3>
       <p>{{staffing}}</p>
       {{#latlng}}
-        <a href="http://maps.google.com/maps?q={{latlng}}" target="_blank" class="direction-btn">GET DIRECTION</a>
+        <a href="http://maps.google.com/maps?q={{latlng}}" target="_blank">GET DIRECTION</a>
       {{/latlng}}
     </div>
   </script>
