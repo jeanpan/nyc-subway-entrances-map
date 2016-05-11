@@ -65,6 +65,12 @@
       <p>{{vending}}</p>
       <h3>staffing</h3>
       <p>{{staffing}}</p>
+      <h3>route</h3>
+      <p>
+        {{#route}}
+        <span>{{.}}</span>
+        {{/route}}
+      </p>
       {{#latlng}}
         <a href="http://maps.google.com/maps?q={{latlng}}" target="_blank">GET DIRECTION</a>
       {{/latlng}}

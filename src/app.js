@@ -22,7 +22,7 @@
     expanded: true,
     fullWidth: false,
     panToPoint: false,
-    autocomplete: true,
+    autocomplete: false,
     bounds: L.latLngBounds([[40.9260, -74.2212], [40.4924, -73.6911]]),
     attribution: '',
     placeholder: 'Search by your address',
@@ -297,8 +297,9 @@
 
     $('.content').append(output);
   }
-  /*
+
   // Subway Line Data
+  // TODO: proper line color.
   $.getJSON('data/MTA_subway_lines.geojson', function(data) {
 
     var subwayLineData = data;
@@ -324,7 +325,7 @@
     }).addTo(map);
 
   });
-  */
+
 
   function getQuery(filters) {
     console.log(filters);
