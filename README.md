@@ -4,7 +4,7 @@
 
 There are many subway entrances in NYC. However, these entrances are not shown in Google Map. Google Map only shows station location.
 
-This map shows all the subway entrances and provides nearby entrances search. Also, clicking on the entrances point can get more information about the entrances.
+This map shows all the subway entrances in NYC and provides nearby entrances search. Moreover, clicking on the entrances point can get more information about the entrances.
 
 ## Data Sources
 
