@@ -1,11 +1,13 @@
-# [NYC Subway Lines & Entrances](http://jeanpan.github.io/NYC-SubwayLinesEntrances/)
+# [nyc-subway-entrances-map](http://jeanpan.github.io/nyc-subway-entrances-map/)
 
-Created with [Leaflet.js](http://leafletjs.com/).
+## Why
 
-Data of Subway Lines & Subway Entrances are from [NYC Open Data](https://nycopendata.socrata.com/).
+There are many subway entrances in NYC. However, these entrances are not shown in Google Map. Google Map only shows station location.
 
-![Image of NYC Subway Lines]
-(http://jeanpan.github.io/NYC-SubwayLinesEntrances/image/Lines.png)
+This map shows all the subway entrances and provides nearby entrances search. Also, clicking on the entrances point can get more information about the entrances.
 
-![Image of NYC Subway Entrances]
-(http://jeanpan.github.io/NYC-SubwayLinesEntrances/image/Entrances.png)
+## Data Sources
+
+- [NYC Subway Entrances Data](https://data.ny.gov/)
+
+## Work In Progress
