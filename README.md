@@ -10,4 +10,5 @@ This map shows all the subway entrances in NYC and provides nearby entrances sea
 
 - [NYC Subway Entrances Data](https://data.ny.gov/)
 
-## Work In Progress
+
+work in progress ...
